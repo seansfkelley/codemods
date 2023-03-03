@@ -21,11 +21,20 @@ export default (file, api) => {
   const exportName = existingName || intendedName;
 
   if (!nameIsInUse) {
-    return f
-      .find(j.ExportDefaultDeclaration)
-      .insertBefore((path) => f.exportDefaultAsNamed(path, exportName))
-      .replaceWith(() => f.exportVarNameAsDefault(exportName))
-      .toSource();
+    const defaultExport = f.find(j.ExportDefaultDeclaration).get().value.declaration;
+    if (defaultExport.type === 'FunctionDeclaration') {
+      defaultExport.id = exportName;
+      return f
+        .find(j.ExportDefaultDeclaration)
+        .replaceWith(() => j.exportNamedDeclaration(defaultExport))
+        .toSource();
+    } else {
+      return f
+        .find(j.ExportDefaultDeclaration)
+        .insertBefore((path) => f.exportDefaultAsNamed(path, exportName))
+        .replaceWith(() => f.exportVarNameAsDefault(exportName))
+        .toSource();
+    }
   }
 
   const classExportOfName = f.getExportsByClassName(exportName);
