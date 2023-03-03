@@ -31,8 +31,7 @@ export default (file, api) => {
     } else {
       return f
         .find(j.ExportDefaultDeclaration)
-        .insertBefore((path) => f.exportDefaultAsNamed(path, exportName))
-        .replaceWith(() => f.exportVarNameAsDefault(exportName))
+        .replaceWith((path) => f.exportDefaultAsNamed(path, exportName))
         .toSource();
     }
   }
